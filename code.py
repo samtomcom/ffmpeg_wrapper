@@ -10,15 +10,6 @@ from datetime import timedelta
 from os import path
 from types import SimpleNamespace
 
-"""
-Python script to process a file with ffmpeg, giving information afterwards
-
-python code.py [N] '/path/to/file.ext' [q]
-N = rough percentage of CPU to use, 4 to use 50% with 8 threads, 2 for 25%
-  4 is the default if not passed
-3rd argument is empty for verbose, anything else for quiet mode
-"""
-
 def reencode(f, args):
 	start = datetime.now()
 
@@ -74,11 +65,12 @@ parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I d
 
 parser.add_argument('input', nargs='+', help='the input(s) given.')
 
-parser.add_argument('-t', '--type', default='file', choices=['file', 'multi', 'list'], 
+parser.add_argument('-t', '--type', default='file', choices=['in', 'multi', 'file'], 
 	help='The type of input, file is a single file, multi is a list of files (using *), \
 		 list is a file containing a list of files to process')
 
-parser.add_argument('-p', '--percentage', type=int, default=50, 
+parser.add_argument('-p', '--percentage', type=int, default=50, choices=range(0,101),
+	metavar='0-100',
 	help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores')
 parser.add_argument('-q', '--quiet', action='store_const',
 	default=False, const=True,
@@ -87,15 +79,15 @@ args = parser.parse_args()
 
 # Normalise parameters to ffmpeg params
 cpus = multiprocessing.cpu_count()
-args.threads = str((int(args.percentage/100 * cpus) - 1) % cpus + 1)
+args.threads = str( int(args.percentage/100.0 * cpus) % (cpus + 1))
 args.loglevel = "warning" if args.quiet else "info"
 
-if args.type == 'file':
+if args.type == 'in':
 	reencode(args.input[0], args)
 elif args.type == 'multi':
 	for f in args.input:
 		reencode(f, args)
-else: # list
+else: # file
 	with open(args.input[0], 'r') as l:
 		for f in l:
 			reencode(f.rstrip(), args)
