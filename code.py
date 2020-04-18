@@ -3,10 +3,12 @@ import subprocess
 import os
 import locale
 import argparse
+import multiprocessing
 
 from datetime import datetime
 from datetime import timedelta
 from os import path
+from types import SimpleNamespace
 
 """
 Python script to process a file with ffmpeg, giving information afterwards
@@ -17,103 +19,83 @@ N = rough percentage of CPU to use, 4 to use 50% with 8 threads, 2 for 25%
 3rd argument is empty for verbose, anything else for quiet mode
 """
 
-## Start
+def reencode(f, args):
+	start = datetime.now()
 
-start = datetime.now()
+	if not path.exists(f):
+		print("ERROR: file not found, skipping")
+		return
 
-## Get parameters
+	# Construct temp name for processing
+	dirn, base = path.split(f)
+	name, ext = path.splitext(base)
+	newf = path.join(dirn, name + "_" + ext)
 
-parser = argparse.ArgumentParser(description='Test argparsing.')
-parser.add_argument('-f', '--file', help='file to process')
-parser.add_argument('-d', '--dir', help='directory of files to process')
-parser.add_argument('-l', '--list', help='file containing list of files to process')
-parser.add_argument('-p', '--cpu', help='percentage of cpu to use, will be rounded')
+	# Run ffmpeg
+	subprocess.run(["ffmpeg", 
+		"-i", f, 
+		"-c:v", "libx265",
+		"-c:a", "copy", 
+		"-ac", "2", 
+		"-threads", args.threads, 
+		"-hide_banner", 
+		"-loglevel", args.loglevel,
+		"-y", 
+		newf
+	])
 
-parser.add_argument('-q', '--quiet', nargs='?', help='quiet mode, don\'t show ffmpeg output',
-					default=False)
+	# Calculate the size difference
+	oldsize = int(os.path.getsize(f) / 1024.0)
+	newsize = int(os.path.getsize(newf) / 1024.0)
+	delta = (oldsize - newsize) / oldsize * 100
 
+	print('\nRe-encoded "{}"'.format(base))
+	print("Reduced by {:.2f}%".format(delta))
 
+	print(locale.format_string("\nOld Size: %12d KiB", oldsize, grouping=True))
+	print(locale.format_string("New Size: %12d KiB", newsize, grouping=True))
+
+	# Remove which ever is bigger
+	if oldsize > newsize:
+		os.remove(f)
+		os.rename(newf, f)
+		print("File replaced")
+	else:
+		os.remove(newf)
+		print("File not replaced")
+
+	# Print timing info
+	end = datetime.now()
+	end_time = end.strftime("%H:%M:%S")
+	duration = (end-start)
+	print("\nFinished at", end_time, "taking", duration, "\n")
+
+parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I don\'t have to type as much')
+
+parser.add_argument('input', nargs='+', help='the input(s) given.')
+
+parser.add_argument('-t', '--type', default='file', choices=['file', 'multi', 'list'], 
+	help='The type of input, file is a single file, multi is a list of files (using *), \
+		 list is a file containing a list of files to process')
+
+parser.add_argument('-p', '--percentage', type=int, default=50, 
+	help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores')
+parser.add_argument('-q', '--quiet', action='store_const',
+	default=False, const=True,
+	help='Hide the ffmpeg output')
 args = parser.parse_args()
-print(args)
 
-## Normalise parameters
+# Normalise parameters to ffmpeg params
+cpus = multiprocessing.cpu_count()
+args.threads = str((int(args.percentage/100 * cpus) - 1) % cpus + 1)
+args.loglevel = "warning" if args.quiet else "info"
 
-
-## Run re-encode
-
-## Clean up
-
-end = datetime.now()
-end_time = end.strftime("%H:%M:%S")
-duration = (end-start)
-print("\nFinished at", end_time, "taking", duration, "\n")
-
-
-
-
-
-
-
-
-
-
-
-
-#################################
-
-# start = datetime.now()
-
-# if len(sys.argv) == 2: # 1 param = path
-# 	f = path.normpath(sys.argv[1])
-# 	threads = "4"
-# else: # more = threads, path, [q]
-# 	threads = sys.argv[1]
-# 	f = path.normpath(sys.argv[2])
-
-# if not path.exists(f):
-# 	raise IOError('Given file does not exist')
-
-# dirn, base = path.split(f)
-# name, ext = path.splitext(base)
-
-# newf = path.join(dirn, name + "_" + ext)
-
-# loglevel = "info"
-# if len(sys.argv) == 4:
-# 	loglevel = "warning"
-
-# subprocess.run(["ffmpeg", 
-# 	"-i", f, 
-# 	"-c:v", "libx265",
-# 	"-c:a", "copy", 
-# 	"-ac", "2", 
-# 	"-threads", threads, 
-# 	"-hide_banner", 
-# 	"-loglevel", loglevel, 
-# 	newf
-# ])
-
-# oldsize = int(os.path.getsize(f) / 1024.0)
-# newsize = int(os.path.getsize(newf) / 1024.0)
-# delta = (oldsize-newsize)/oldsize*100
-
-# locale.setlocale(locale.LC_ALL, 'en_GB')
-
-# print('\nRe-encoded "{}"'.format(base))
-# print("Reduced by {:.2f}%".format(delta))
-
-# print(locale.format_string("\nOld Size: %12d KiB", oldsize, grouping=True))
-# print(locale.format_string("New Size: %12d KiB", newsize, grouping=True))
-
-# if oldsize > newsize:
-# 	os.remove(f)
-# 	os.rename(newf, f)
-# 	print("File replaced")
-# else:
-# 	os.remove(newf)
-# 	print("File not replaced")
-
-# end = datetime.now()
-# end_time = end.strftime("%H:%M:%S")
-# duration = (end-start)
-# print("\nFinished at", end_time, "taking", duration, "\n")
+if args.type == 'file':
+	reencode(args.input[0], args)
+elif args.type == 'multi':
+	for f in args.input:
+		reencode(f, args)
+else: # list
+	with open(args.input[0], 'r') as l:
+		for f in l:
+			reencode(f.rstrip(), args)
