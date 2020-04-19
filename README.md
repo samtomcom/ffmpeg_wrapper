@@ -13,23 +13,20 @@ ffmpeg needs to be installed, and added to the system path so that the script ca
 # Usage
 
 ```
-usage: code.py [-h] [-t {in,multi,file}] [-p 0-100] [-q] input [input ...]
+usage: code.py [-h] [-l] [-p 0-100] [-q] input [input ...]
 
-Wrap ffmpeg to encode files so I don't have to type as much
+Wrap ffmpeg to encode files so I don't have to type as much.
 
 positional arguments:
   input                 the input(s) given.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t {in,multi,file}, --type {in,multi,file}
-                        The type of input, file is a single file, multi is a
-                        list of files (using *), list is a file containing a
-                        list of files to process
+  -l, --list            Indicate the input is a list of files to process.
   -p 0-100, --percentage 0-100
                         (Sort of) the percentage of the cpu to use. Gets
-                        rounded to number of cores
-  -q, --quiet           Hide the ffmpeg output
+                        rounded to number of cores.
+  -q, --quiet           Hide the ffmpeg output.
 ```
 
 I would reccomend adding the script to the path / an alias so that it can be called from anyway easily.
@@ -45,25 +42,19 @@ use `-q` to hide the ffmpeg output
 
 use `-p 0-100`, to denote the percentage of CPU to use, roughly
 
-## Regular input
+## File inputs
 
     ffmpeg_wrap file.mp4
-	ffmpeg_wrap -t in file.mp4
+	ffmpeg_wrap file1.mp4 file2.mkv file3.mp4
+	ffmpeg_wrap *.mp4
+	ffmpeg_wrap * 
 
-The `input` paramter should be a single file to be processed.
-
-## Multiple inputs
-
-    ffmpeg_wrap -t multi file1.mp4 file2.mp4 file3.mp4 
-    ffmpeg_wrap -t multi *.mp4
-
-With `-t multi`, the `input` parameter should be a list of files.
-
-You can the * operator, or list each file.
+The input is a file, or a list of files to be encoded.
 
 ## File input
 
-    ffmpeg_wrap -t file files.txt
+    ffmpeg_wrap --list files.txt
+	ffmpeg_wrap -l files.txt
 	
 The `input` parameter should be a file that has a name of a file to
 encode on each line, e.g.

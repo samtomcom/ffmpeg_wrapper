@@ -61,20 +61,19 @@ def reencode(f, args):
 	duration = (end-start)
 	print("\nFinished at", end_time, "taking", duration, "\n")
 
-parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I don\'t have to type as much')
+parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I don\'t have to type as much.')
 
 parser.add_argument('input', nargs='+', help='the input(s) given.')
 
-parser.add_argument('-t', '--type', default='file', choices=['in', 'multi', 'file'], 
-	help='The type of input, file is a single file, multi is a list of files (using *), \
-		 list is a file containing a list of files to process')
+parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
+	help='Indicate the input is a list of files to process.')
 
 parser.add_argument('-p', '--percentage', type=int, default=50, choices=range(0,101),
 	metavar='0-100',
-	help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores')
+	help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores.')
 parser.add_argument('-q', '--quiet', action='store_const',
 	default=False, const=True,
-	help='Hide the ffmpeg output')
+	help='Hide the ffmpeg output.')
 args = parser.parse_args()
 
 # Normalise parameters to ffmpeg params
@@ -82,12 +81,12 @@ cpus = multiprocessing.cpu_count()
 args.threads = str( int(args.percentage/100.0 * cpus) % (cpus + 1))
 args.loglevel = "warning" if args.quiet else "info"
 
-if args.type == 'in':
-	reencode(args.input[0], args)
-elif args.type == 'multi':
+if args.list:
+	with open(args.input[0], 'r') as filelist:
+		for f in filelist:
+			reencode(f.rstrip(), args)
+
+else:
 	for f in args.input:
 		reencode(f, args)
-else: # file
-	with open(args.input[0], 'r') as l:
-		for f in l:
-			reencode(f.rstrip(), args)
+	
