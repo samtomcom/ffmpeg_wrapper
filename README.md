@@ -29,7 +29,7 @@ optional arguments:
   -q, --quiet           Hide the ffmpeg output.
 ```
 
-I would reccomend adding the script to the path / an alias so that it can be called from anyway easily.
+I would recommend adding the script to the path / an alias so that it can be called from anyway easily.
 Here, `ffmpeg_wrap` is the alias I have to `python /path/to/the/script/code.py`
 
 Files can be given by absolute or relative paths.

@@ -1,7 +1,6 @@
 import sys
 import subprocess
 import os
-import locale
 import argparse
 import multiprocessing
 
@@ -18,75 +17,71 @@ def reencode(f, args):
 		return
 
 	# Construct temp name for processing
-	dirn, base = path.split(f)
-	name, ext = path.splitext(base)
-	newf = path.join(dirn, name + "_" + ext)
+	directory, name = path.split(f)
+	basename, ext = path.splitext(name)
+	file_new = path.join(directory, basename + "_" + ext)
 
-	# Run ffmpeg
-	subprocess.run(["ffmpeg", 
-		"-i", f, 
-		"-c:v", "libx265",
-		"-c:a", "copy", 
-		"-ac", "2", 
-		"-threads", args.threads, 
-		"-hide_banner", 
-		"-loglevel", args.loglevel,
-		"-y", 
-		newf
-	])
+	ffmpeg(f,
+		["-c:v", "libx265", "-ac", "2"],
+		file_new
+	)
 
 	# Calculate the size difference
-	oldsize = int(os.path.getsize(f) / 1024.0)
-	newsize = int(os.path.getsize(newf) / 1024.0)
-	delta = (oldsize - newsize) / oldsize * 100
+	size_old = get_size(f)
+	size_new = get_size(file_new)
+	size_delta = (size_old - size_new) / size_old * 100
 
-	print('\nRe-encoded "{}"'.format(base))
-	print("Reduced by {:.2f}%".format(delta))
+	print('\nRe-encoded "{}"'.format(basename))
+	print("Reduced by {:.2f}% ({} KiB)".format(size_delta, size_old - size_new))
 
-	print(locale.format_string("\nOld Size: %12d KiB", oldsize, grouping=True))
-	print(locale.format_string("New Size: %12d KiB", newsize, grouping=True))
-
-	# Remove which ever is bigger
-	if oldsize > newsize:
-		os.remove(f)
-		os.rename(newf, f)
-		print("File replaced")
-	else:
-		os.remove(newf)
-		print("File not replaced")
+	# Remove un-encoded file
+	os.remove(f)
 
 	# Print timing info
 	end = datetime.now()
-	end_time = end.strftime("%H:%M:%S")
-	duration = (end-start)
-	print("\nFinished at", end_time, "taking", duration, "\n")
+	print("\nFinished at", end.strftime("%H:%M:%S"), "taking", (end-start), "\n")
 
-parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I don\'t have to type as much.')
+def ffmpeg(file_in, params, file_out):
+	subprocess.run(["ffmpeg", 
+		"-i", file_in,
+		"-y", 
+		"-threads", args.threads, 
+		"-hide_banner", 
+		"-loglevel", args.loglevel]
+		+params
+		+[file_out]
+	)
 
-parser.add_argument('input', nargs='+', help='the input(s) given.')
+def get_size(file):
+	return int(os.path.getsize(file) / 1024.0)
 
-parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
-	help='Indicate the input is a list of files to process.')
+if __name__=="__main__":
+	parser = argparse.ArgumentParser(description='Wrap ffmpeg to encode files so I don\'t have to type as much.')
 
-parser.add_argument('-p', '--percentage', type=int, default=50, choices=range(0,101),
-	metavar='0-100',
-	help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores.')
-parser.add_argument('-q', '--quiet', action='store_const',
-	default=False, const=True,
-	help='Hide the ffmpeg output.')
-args = parser.parse_args()
+	parser.add_argument('input', nargs='+', help='the input(s) given.')
 
-# Normalise parameters to ffmpeg params
-cpus = multiprocessing.cpu_count()
-args.threads = str( int(args.percentage/100.0 * cpus) % (cpus + 1))
-args.loglevel = "warning" if args.quiet else "info"
+	parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
+		help='Indicate the input is a list of files to process.')
 
-if args.list:
-	with open(args.input[0], 'r') as filelist:
-		for f in filelist:
-			reencode(f.rstrip(), args)
+	parser.add_argument('-p', '--percentage', type=int, default=50, choices=range(0,101),
+		metavar='0-100',
+		help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores.')
+	parser.add_argument('-q', '--quiet', action='store_const',
+		default=False, const=True,
+		help='Hide the ffmpeg output.')
+	args = parser.parse_args()
 
-else:
-	for f in args.input:
-		reencode(f, args)
-	
+	# Normalise parameters to ffmpeg params
+	cpus = multiprocessing.cpu_count()
+	args.threads = str( int(args.percentage/100.0 * cpus) % (cpus + 1))
+	args.loglevel = "warning" if args.quiet else "info"
+
+	if args.list:
+		with open(args.input[0], 'r') as filelist:
+			for f in filelist:
+				reencode(f.rstrip(), args)
+
+	else:
+		for f in args.input:
+			reencode(f, args)
+		
