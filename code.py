@@ -21,7 +21,7 @@ def reencode(f, args):
 	basename, ext = path.splitext(name)
 	file_new = path.join(directory, basename + "_" + ext)
 
-	ffmpeg(f,
+	ffmpeg(f, args,
 		["-c:v", "libx265", "-ac", "2"],
 		file_new
 	)
@@ -41,7 +41,7 @@ def reencode(f, args):
 	end = datetime.now()
 	print("\nFinished at", end.strftime("%H:%M:%S"), "taking", (end-start), "\n")
 
-def ffmpeg(file_in, params, file_out):
+def ffmpeg(file_in, args, params, file_out):
 	subprocess.run(["ffmpeg", 
 		"-i", file_in,
 		"-y", 
