@@ -32,10 +32,11 @@ def reencode(f, args):
 	size_delta = (size_old - size_new) / size_old * 100
 
 	print('\nRe-encoded "{}"'.format(basename))
-	print("Reduced by {:.2f}% ({} KiB)".format(size_delta, size_old - size_new))
+	print("Reduced by {:.2f}% ({} -> {} KiB)".format(size_delta, size_old, size_new))
 
 	# Remove un-encoded file
 	os.remove(f)
+	os.rename(file_new, f)
 
 	# Print timing info
 	end = datetime.now()
