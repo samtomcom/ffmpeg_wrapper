@@ -1,3 +1,4 @@
+import ctypes
 import sys
 import subprocess
 import os
@@ -20,6 +21,8 @@ def reencode(f, args):
 	directory, name = path.split(f)
 	basename, ext = path.splitext(name)
 	file_new = path.join(directory, basename + "_" + ext)
+	
+	ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
 
 	ffmpeg(f, args,
 		["-c:v", "libx265", "-ac", "2"],
