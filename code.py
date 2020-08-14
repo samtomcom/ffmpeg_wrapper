@@ -20,7 +20,7 @@ def reencode(f, args):
 	# Construct temp name for processing
 	directory, name = path.split(f)
 	basename, ext = path.splitext(name)
-	file_new = path.join(directory, basename + "_" + ext)
+	file_new = path.join(directory, basename + "_" + "mkv")
 	
 	ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
 
