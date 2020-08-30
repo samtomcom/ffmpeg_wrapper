@@ -16,10 +16,12 @@ ffmpeg needs to be installed, and added to the system path so that the script ca
     $ cd ffmpeg_wrapper/
     $ sudo chmod +x ffmpeg_wrapper.py
 
+Then add the script to your path, or set an alias so it can be called from any directory.
+
 # Usage
 
 ```
-usage: ffmpeg_wrapper.py [-h] [-l] [-t THREADS] [-q] input [input ...]
+usage: ffmpeg_wrapper.py [-h] [-l] [-e EXT] [-t N] [-q] input [input ...]
 
 Wrap ffmpeg to encode files so I don't have to type as much.
 
@@ -29,18 +31,13 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -l, --list            Indicate the input is a list of files to process.
-  -t THREADS, --threads THREADS
-                        Number of CPU threads to use. Default is 4.
+  -e EXT, --extension EXT
+                        Optionally change the file type.
+  -t N, --threads N     Number of CPU threads to use. Default is 4.
   -q, --quiet           Hide the ffmpeg output.
 ```
 
 Files can be given by absolute or relative paths.
-
-## All types
-
-    ffmpeg_wrapper.py INPUT [-l] [-q] [-t THREADS]
-	
-use `-q` to hide the ffmpeg output
 
 use `-t N`, to denote the number of CPU threads to use.  
 (Kind of, ffmpeg will actually convert this to a percentage of CPU usage)  

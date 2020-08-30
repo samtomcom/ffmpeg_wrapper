@@ -11,16 +11,18 @@ from os import path
 from types import SimpleNamespace
 
 def reencode(f, args):
+	"""Re-encode a file with given arguments"""
 	start = datetime.now()
 
 	if not path.exists(f):
 		print("ERROR: file not found, skipping")
 		return
 
-	# Construct temp name for processing
+	# Deconstruct old filename to create the new one
 	directory, name = path.split(f)
 	basename, ext = path.splitext(name)
-	file_new = path.join(directory, basename + "_" + ".mkv")
+	# Replace extension if specified
+	file_new = path.join(directory, basename + "_." + (ext if not args.extension else args.extension) )
 	
 	ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
 
@@ -46,6 +48,7 @@ def reencode(f, args):
 	print("\nFinished at", end.strftime("%H:%M:%S"), "taking", (end-start), "\n")
 
 def ffmpeg(file_in, args, params, file_out):
+	"""Run the actual ffmpeg process"""
 	subprocess.run(["ffmpeg", 
 		"-i", file_in,
 		"-y", 
@@ -57,6 +60,7 @@ def ffmpeg(file_in, args, params, file_out):
 	)
 
 def get_size(file):
+	"""Calculate a file size in KiB"""
 	return int(os.path.getsize(file) / 1024.0)
 
 if __name__=="__main__":
@@ -64,14 +68,18 @@ if __name__=="__main__":
 
 	parser.add_argument('input', nargs='+', help='the input(s) given.')
 
+	parser.add_argument('-e', '--extension', nargs=1, default=None, metavar='EXT',
+		help='Optionally change the file type(s).')
+
 	parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
 		help='Indicate the input is a list of files to process.')
 
-	parser.add_argument('-t', '--threads', type=int, default=4,
-		help='Number of CPU threads to use. Default is 4.')
 	parser.add_argument('-q', '--quiet', action='store_const',
 		default=False, const=True,
 		help='Hide the ffmpeg output.')
+	parser.add_argument('-t', '--threads', type=int, default=4, metavar='N',
+		help='Number of CPU threads to use. Default is 4.')
+
 	args = parser.parse_args()
 
 	# Normalise loglevel parameter
