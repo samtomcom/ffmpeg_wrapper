@@ -24,7 +24,8 @@ def reencode(f, args):
 	# Replace extension if specified
 	file_new = path.join(directory, basename + "_." + (ext if not args.extension else args.extension) )
 	
-	ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
+	if os.name == 'nt':
+		ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
 
 	ffmpeg(f, args,
 		["-c:v", "libx265", "-ac", "2"],
