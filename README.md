@@ -10,10 +10,16 @@ Created to improve my experience re-encoding my collection of films.
 
 ffmpeg needs to be installed, and added to the system path so that the script can call it.
 
+## Installation
+
+    $ git clone https://github.com/samtomcom/ffmpeg_wrapper.git
+    $ cd ffmpeg_wrapper/
+    $ sudo chmod +x ffmpeg_wrapper.py
+
 # Usage
 
 ```
-usage: code.py [-h] [-l] [-p 0-100] [-q] input [input ...]
+usage: ffmpeg_wrapper.py [-h] [-l] [-t THREADS] [-q] input [input ...]
 
 Wrap ffmpeg to encode files so I don't have to type as much.
 
@@ -23,38 +29,36 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -l, --list            Indicate the input is a list of files to process.
-  -p 0-100, --percentage 0-100
-                        (Sort of) the percentage of the cpu to use. Gets
-                        rounded to number of cores.
+  -t THREADS, --threads THREADS
+                        Number of CPU threads to use. Default is 4.
   -q, --quiet           Hide the ffmpeg output.
 ```
-
-I would recommend adding the script to the path / an alias so that it can be called from anyway easily.
-Here, `ffmpeg_wrap` is the alias I have to `python /path/to/the/script/code.py`
 
 Files can be given by absolute or relative paths.
 
 ## All types
 
-    ffmpeg_wrap INPUT [-t type] [-q] [-p 0-100]
+    ffmpeg_wrapper.py INPUT [-l] [-q] [-t THREADS]
 	
 use `-q` to hide the ffmpeg output
 
-use `-p 0-100`, to denote the percentage of CPU to use, roughly
+use `-t N`, to denote the number of CPU threads to use.  
+(Kind of, ffmpeg will actually convert this to a percentage of CPU usage)  
+e.g. N=4 when you have 8 threads will use ALL of your threads at 50% usage.
 
 ## File inputs
 
-    ffmpeg_wrap file.mp4
-	ffmpeg_wrap file1.mp4 file2.mkv file3.mp4
-	ffmpeg_wrap *.mp4
-	ffmpeg_wrap * 
+    ffmpeg_wrapper.py file.mp4
+    ffmpeg_wrapper.py file1.mp4 file2.mkv file3.mp4
+    ffmpeg_wrapper.py *.mp4
+    ffmpeg_wrapper.py * 
 
 The input is a file, or a list of files to be encoded.
 
-## File input
+## File list input
 
-    ffmpeg_wrap --list files.txt
-	ffmpeg_wrap -l files.txt
+    ffmpeg_wrapper.py --list files.txt
+	ffmpeg_wrapper.py -l files.txt
 	
 The `input` parameter should be a file that has a name of a file to
 encode on each line, e.g.

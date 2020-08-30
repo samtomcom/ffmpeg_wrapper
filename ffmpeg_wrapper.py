@@ -67,17 +67,14 @@ if __name__=="__main__":
 	parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
 		help='Indicate the input is a list of files to process.')
 
-	parser.add_argument('-p', '--percentage', type=int, default=50, choices=range(0,101),
-		metavar='0-100',
-		help='(Sort of) the percentage of the cpu to use. Gets rounded to number of cores.')
+	parser.add_argument('-t', '--threads', type=int, default=4,
+		help='Number of CPU threads to use. Default is 4.')
 	parser.add_argument('-q', '--quiet', action='store_const',
 		default=False, const=True,
 		help='Hide the ffmpeg output.')
 	args = parser.parse_args()
 
-	# Normalise parameters to ffmpeg params
-	cpus = multiprocessing.cpu_count()
-	args.threads = str( int(args.percentage/100.0 * cpus) % (cpus + 1))
+	# Normalise loglevel parameter
 	args.loglevel = "warning" if args.quiet else "info"
 
 	if args.list:
