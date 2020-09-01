@@ -23,8 +23,10 @@ def reencode(f, args):
 	# Deconstruct old filename to create the new one
 	directory, name = path.split(f)
 	basename, ext = path.splitext(name)
+	
 	# Replace extension if specified
-	file_new = path.join(directory, basename + "_." + (ext if not args.extension else args.extension) )
+	ext = '.' + args.extension[0] if args.extension else ext
+	file_new = path.join(directory, basename + "_" + ext )
 	
 	if os.name == 'nt':
 		ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
@@ -37,7 +39,7 @@ def reencode(f, args):
 	# Calculate the size difference
 	size_old = get_size(f)
 	size_new = get_size(file_new)
-	size_delta = (size_old - size_new) / size_old * 100
+	size_delta = (size_old - size_new) / size_old * 100 # %
 
 	print('\nRe-encoded "{}"'.format(basename))
 	print("Reduced by {:.2f}% ({} -> {} KiB)".format(size_delta, size_old, size_new))
@@ -55,7 +57,7 @@ def ffmpeg(file_in, args, params, file_out):
 	subprocess.run(["ffmpeg", 
 		"-i", file_in,
 		"-y", 
-		"-threads", args.threads, 
+		"-threads", str(args.threads), 
 		"-hide_banner", 
 		"-loglevel", args.loglevel]
 		+params
