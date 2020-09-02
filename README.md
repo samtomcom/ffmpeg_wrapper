@@ -43,7 +43,7 @@ use `-t N`, to denote the number of CPU threads to use.
 (Kind of, ffmpeg will actually convert this to a percentage of CPU usage)  
 e.g. N=4 when you have 8 threads will use ALL of your threads at 50% usage.
 
-## File inputs
+### Regular input
 
     ffmpeg_wrapper.py file.mp4
     ffmpeg_wrapper.py file1.mp4 file2.mkv file3.mp4
@@ -52,19 +52,19 @@ e.g. N=4 when you have 8 threads will use ALL of your threads at 50% usage.
 
 The input is a file, or a list of files to be encoded.
 
-## File list input
+### File list input
 
     ffmpeg_wrapper.py --list files.txt
-	ffmpeg_wrapper.py -l files.txt
+	  ffmpeg_wrapper.py -l files.txt
 	
 The `input` parameter should be a file that has a name of a file to
 encode on each line, e.g.
 
     files.txt
-	---------
-	file1.mp4
-	file2.mp4
-	file3.mp4
+	  ---------
+	  file1.mp4
+	  file2.mp4
+	  file3.mp4
 
 
 

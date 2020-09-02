@@ -26,8 +26,8 @@ def reencode(f, args):
     
     # Replace extension if specified
     ext = '.' + args.extension[0] if args.extension else ext
-    file_new = path.join(directory, f'{basename}_{ext}')
-    file_tmp = path.join(directory, f'{basename}{ext}')
+    file_tmp = path.join(directory, f'{basename}_{ext}')
+    file_new = path.join(directory, f'{basename}{ext}')
     # e.g.  f  = 'video.avi'
     # file_new = 'video.mkv'
     # file_tmp = 'video_.mkv'
@@ -54,7 +54,7 @@ def reencode(f, args):
 
     # Print timing info
     end = datetime.now()
-    print(f'\nFinished at {%H:%M:%S} taking {end-start}\n')
+    print(f'\nFinished at {end.strftime("%H:%M:%S")} taking {end-start}\n')
 
 def ffmpeg(file_in, args, params, file_out):
     """Run the actual ffmpeg process"""
