@@ -17,7 +17,7 @@ def reencode(f, args):
 	start = datetime.now()
 
 	if not path.exists(f):
-		print("ERROR: file not found, skipping")
+		print('ERROR: file not found, skipping')
 		return
 
 	# Deconstruct old filename to create the new one
@@ -26,17 +26,17 @@ def reencode(f, args):
 	
 	# Replace extension if specified
 	ext = '.' + args.extension[0] if args.extension else ext
-	file_new = path.join(directory, basename + "_" + ext )
-    file_tmp = path.join(directory, basename + ext )
-    # e.g.  f  = "video.avi"
-    # file_new = "video.mkv"
-    # file_tmp = "video_.mkv"
+	file_new = path.join(directory, f'{basename}_{ext}')
+    file_tmp = path.join(directory, f'{basename}{ext}')
+    # e.g.  f  = 'video.avi'
+    # file_new = 'video.mkv'
+    # file_tmp = 'video_.mkv'
 	
 	if os.name == 'nt':
-		ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
+		ctypes.windll.kernel32.SetConsoleTitleW(f'Re-encoding {name}')
 
 	ffmpeg(f, args,
-		["-c:v", "libx265", "-ac", "2"],
+		['-c:v', 'libx265', '-ac', '2'],
 		file_tmp
 	)
 
@@ -45,8 +45,8 @@ def reencode(f, args):
 	size_new = get_size(file_tmp)
 	size_delta = (size_old - size_new) / size_old * 100 # %
 
-	print('\nRe-encoded "{}"'.format(basename))
-	print("Reduced by {:.2f}% ({} -> {} KiB)".format(size_delta, size_old, size_new))
+	print(f'\nRe-encoded {basename}')
+	print(f'Reduced by {size_delta:.2f}% ({size_old:,} -> {size_new:,} KiB')
 
 	# Remove old&temporary files
 	os.remove(f)
@@ -54,16 +54,16 @@ def reencode(f, args):
 
 	# Print timing info
 	end = datetime.now()
-	print("\nFinished at", end.strftime("%H:%M:%S"), "taking", (end-start), "\n")
+	print(f'\nFinished at {%H:%M:%S} taking {end-start}\n')
 
 def ffmpeg(file_in, args, params, file_out):
 	"""Run the actual ffmpeg process"""
-	subprocess.run(["ffmpeg", 
-		"-i", file_in,
-		"-y", 
-		"-threads", str(args.threads), 
-		"-hide_banner", 
-		"-loglevel", args.loglevel]
+	subprocess.run(['ffmpeg', 
+		'-i', file_in,
+		'-y', 
+		'-threads', str(args.threads), 
+		'-hide_banner', 
+		'-loglevel', args.loglevel]
 		+params
 		+[file_out]
 	)
@@ -92,7 +92,7 @@ if __name__=="__main__":
 	args = parser.parse_args()
 
 	# Normalise loglevel parameter
-	args.loglevel = "warning" if args.quiet else "info"
+	args.loglevel = 'warning' if args.quiet else 'info'
 
 	if args.list:
 		with open(args.input[0], 'r') as filelist:
