@@ -27,26 +27,30 @@ def reencode(f, args):
 	# Replace extension if specified
 	ext = '.' + args.extension[0] if args.extension else ext
 	file_new = path.join(directory, basename + "_" + ext )
+    file_tmp = path.join(directory, basename + ext )
+    # e.g.  f  = "video.avi"
+    # file_new = "video.mkv"
+    # file_tmp = "video_.mkv"
 	
 	if os.name == 'nt':
 		ctypes.windll.kernel32.SetConsoleTitleW("Re-encoding " + name)
 
 	ffmpeg(f, args,
 		["-c:v", "libx265", "-ac", "2"],
-		file_new
+		file_tmp
 	)
 
 	# Calculate the size difference
 	size_old = get_size(f)
-	size_new = get_size(file_new)
+	size_new = get_size(file_tmp)
 	size_delta = (size_old - size_new) / size_old * 100 # %
 
 	print('\nRe-encoded "{}"'.format(basename))
 	print("Reduced by {:.2f}% ({} -> {} KiB)".format(size_delta, size_old, size_new))
 
-	# Remove un-encoded file
+	# Remove old&temporary files
 	os.remove(f)
-	os.rename(file_new, f)
+	os.rename(file_tmp, file_new)
 
 	# Print timing info
 	end = datetime.now()
