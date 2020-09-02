@@ -5,7 +5,7 @@ Created to improve my experience re-encoding my collection of films.
 
 # Requirements
 
-* Python 3.3+
+* Python 3.6+
 * ffmpeg 
 
 ffmpeg needs to be installed, and added to the system path so that the script can call it.
