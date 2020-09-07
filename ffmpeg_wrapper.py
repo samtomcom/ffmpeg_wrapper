@@ -23,17 +23,28 @@ def reencode(f, args):
     # Deconstruct old filename to create the new one
     directory, name = path.split(f)
     basename, ext = path.splitext(name)
+
+    # Skip the file if it is one the blacklisted files
+    # by default (txt, srt, idx, sub)
+    ignore = args.ignore[0].split(',')
+    if ext[1:] in ignore:
+        print(f'Skipped {name} as it is a blacklisted file type.\n')
+        return
     
     exts = args.extension[0].split(',')
 
     # Replace extension if not in the allowed list
-    ext = '.' + exts[0] if ext not in exts else ext
+    ext = '.' + exts[0] if ext[1:] not in exts else ext
 
     file_tmp = path.join(directory, f'{basename}_{ext}')
     file_new = path.join(directory, f'{basename}{ext}')
     # e.g.  f  = 'video.avi'
     # file_new = 'video.mkv'
     # file_tmp = 'video_.mkv'
+
+    print(repr(file_new) + '\n')
+
+    return
     
     if os.name == 'nt':
         ctypes.windll.kernel32.SetConsoleTitleW(f'Re-encoding {name}')
@@ -82,6 +93,9 @@ if __name__=="__main__":
 
     parser.add_argument('-e', '--extension', nargs=1, default=['mkv,mp4'], metavar='EXT',
         help='Optionally change the file type(s).')
+
+    parser.add_argument('-i', '--ignore', nargs=1, default=['txt,srt,idx,sub'], metavar='IGN',
+        help='Ignore the provided file types. Default txt,srt,idx,sub')
 
     parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
         help='Indicate the input is a list of files to process.')

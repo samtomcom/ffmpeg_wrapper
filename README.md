@@ -21,7 +21,8 @@ Then add the script to your path, or set an alias so it can be called from any d
 # Usage
 
 ```
-usage: ffmpeg_wrapper.py [-h] [-l] [-e EXT] [-t N] [-q] input [input ...]
+usage: ffmpeg_wrapper.py [-h] [-e EXT] [-i IGN] [-l] [-q] [-t N]
+                         input [input ...]
 
 Wrap ffmpeg to encode files so I don't have to type as much.
 
@@ -30,11 +31,13 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -l, --list            Indicate the input is a list of files to process.
   -e EXT, --extension EXT
                         Optionally change the file type(s).
-  -t N, --threads N     Number of CPU threads to use. Default is 4.
+  -i IGN, --ignore IGN  Ignore the provided file types. Default
+                        txt,srt,idx,sub
+  -l, --list            Indicate the input is a list of files to process.
   -q, --quiet           Hide the ffmpeg output.
+  -t N, --threads N     Number of CPU threads to use. Default is 4.
 ```
 
 Files can be given by absolute or relative paths.
@@ -43,6 +46,10 @@ use `-e EXT` to provide a comma seperated list of acceptable output
 file types for the re-encoded videos (default is 'mkv,mp4').
 Any file encountered that is not one of the accepted types will be 
 converted to the first given type.
+
+`-i IGN` is used similarly, but to ignore any files that have 
+one of the given file types (default: txt,srt,idx,sub). For use
+with * file inputs where the files aren't explicitly named.
 
 use `-t N`, to denote the number of CPU threads to use.  
 (Kind of, ffmpeg will actually convert this to a percentage of CPU usage)  
