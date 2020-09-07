@@ -32,12 +32,17 @@ optional arguments:
   -h, --help            show this help message and exit
   -l, --list            Indicate the input is a list of files to process.
   -e EXT, --extension EXT
-                        Optionally change the file type.
+                        Optionally change the file type(s).
   -t N, --threads N     Number of CPU threads to use. Default is 4.
   -q, --quiet           Hide the ffmpeg output.
 ```
 
 Files can be given by absolute or relative paths.
+
+use `-e EXT` to provide a comma seperated list of acceptable output
+file types for the re-encoded videos (default is 'mkv,mp4').
+Any file encountered that is not one of the accepted types will be 
+converted to the first given type.
 
 use `-t N`, to denote the number of CPU threads to use.  
 (Kind of, ffmpeg will actually convert this to a percentage of CPU usage)  

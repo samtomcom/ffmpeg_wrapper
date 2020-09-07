@@ -24,8 +24,11 @@ def reencode(f, args):
     directory, name = path.split(f)
     basename, ext = path.splitext(name)
     
-    # Replace extension if specified
-    ext = '.' + args.extension[0] if args.extension else ext
+    exts = args.extension[0].split(',')
+
+    # Replace extension if not in the allowed list
+    ext = '.' + exts[0] if ext not in exts else ext
+
     file_tmp = path.join(directory, f'{basename}_{ext}')
     file_new = path.join(directory, f'{basename}{ext}')
     # e.g.  f  = 'video.avi'
@@ -77,7 +80,7 @@ if __name__=="__main__":
 
     parser.add_argument('input', nargs='+', help='the input(s) given.')
 
-    parser.add_argument('-e', '--extension', nargs=1, default=None, metavar='EXT',
+    parser.add_argument('-e', '--extension', nargs=1, default=['mkv,mp4'], metavar='EXT',
         help='Optionally change the file type(s).')
 
     parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
