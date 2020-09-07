@@ -43,8 +43,6 @@ def reencode(f, args):
     # file_tmp = 'video_.mkv'
 
     print(repr(file_new) + '\n')
-
-    return
     
     if os.name == 'nt':
         ctypes.windll.kernel32.SetConsoleTitleW(f'Re-encoding {name}')
