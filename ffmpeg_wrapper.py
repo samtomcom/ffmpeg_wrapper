@@ -90,8 +90,8 @@ if __name__=="__main__":
     parser.add_argument('-e', '--extension', nargs=1, default=['mkv,mp4'], metavar='EXT',
         help='Optionally change the file type(s).')
 
-    parser.add_argument('-i', '--ignore', nargs=1, default=['txt,srt,idx,sub'], metavar='IGN',
-        help='Ignore the provided file types. Default txt,srt,idx,sub')
+    parser.add_argument('-i', '--ignore', nargs=1, default=['txt,srt,idx,sub,jpg,png'], metavar='IGN',
+        help='Ignore the provided file types. Default txt,srt,idx,sub,jpg,png')
 
     parser.add_argument('-l', '--list', action='store_const', default=False, const=True, 
         help='Indicate the input is a list of files to process.')
